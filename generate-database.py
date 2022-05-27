@@ -1,18 +1,35 @@
 from PIL import Image, ImageDraw
 import numpy as np
 import random
+import time
 import math
+import os
 
-
+# TODO: maybe add graphs
 class GenerateDatabase:
     def __init__(self):
         self.figures = ["rectangle", "ellipse", "triangle"]
         self.colours = ["red", "green", "blue"]
 
     # -------- shape, colour, name, file size -----------
-    def generate_meta_data(self):
-        # TODO: generate the meta data into a csv
-        pass
+    def generate_meta_data(self, final_time):
+        # -------- preparing the data variables ------
+        if int(final_time) == 0:
+            final_time = "{:.3f}".format(final_time)
+        else:
+            final_time = int(final_time)
+
+        # ------- finding the number of figures created -----
+        triangles_no = len(os.listdir("images/triangles"))
+        rectangles_no = len(os.listdir("images/rectangles"))
+        ellipses_no = len(os.listdir("images/ellipses"))
+
+        f = open("images/summarize.txt", "w")
+        f.write(f"EXECUTION TIME: {final_time}s \n")
+        f.write(f"TRIANGLES GENERATED: {triangles_no} \n")
+        f.write(f"RECTANGLES GENERATED: {rectangles_no} \n")
+        f.write(f"ELLIPSES GENERATED: {ellipses_no} \n")
+        f.close()
 
     # ------- generating random images ---------
     def generate_random_figure(self, index):
@@ -84,10 +101,12 @@ class GenerateDatabase:
         m = (C[0] - A[0]) * (B[1] - A[1])
         n = (C[1] - A[1]) * (B[0] - A[0])
 
-        # ------ calculating the distance between C and the AB line -----
-        distance = np.linalg.norm(np.cross(B - A, A - C)) / np.linalg.norm(B - A)
+        # ------ calculating the distance between a point and the line which goes through the other 2 points -----
+        distance1 = np.linalg.norm(np.cross(B - A, A - C)) / np.linalg.norm(B - A)
+        distance2 = np.linalg.norm(np.cross(A - C, C - B)) / np.linalg.norm(A - C)
+        distance3 = np.linalg.norm(np.cross(C - B, B - A)) / np.linalg.norm(C - B)
 
-        if m == n or distance < 5:
+        if m == n or distance1 < 10 or distance2 < 10 or distance3 < 10:
             return self.generate_random_triangle_figures(image, draw, random_color, index)
         else:
             dots = ((A[0], A[1]),
@@ -100,7 +119,6 @@ class GenerateDatabase:
 
             return image
 
-    # TODO: delete me when done
     def generating_grid(self, images, rows, cols):
         assert len(images) == rows * cols
 
@@ -117,11 +135,25 @@ class GenerateDatabase:
 if __name__ == "__main__":
     generate_database = GenerateDatabase()
 
+    initialTime = time.time()
+
     # -------- generating all the pictures and adding them in a single picture -----
     images = []
-    for i in range(100):
+    for i in range(10000):
         img = generate_database.generate_random_figure(i)
         images.append(img)
 
-    grid = generate_database.generating_grid(images, 10, 10)
-    grid.show()
+    # grid = generate_database.generating_grid(images, 10, 10)
+    # grid.show()
+
+    # --------- calculating the final time -----
+    final_time = time.time() - initialTime
+
+    # ------ writing all the database generating data into a file ------
+    generate_database.generate_meta_data(final_time, )
+
+
+# FIXME : weird error
+# generate-database.py:106: RuntimeWarning: invalid value encountered in double_scalars
+# distance2 = np.linalg.norm(np.cross(A - C, C - B)) / np.linalg.norm(A - C)
+
