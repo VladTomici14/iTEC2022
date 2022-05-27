@@ -59,7 +59,7 @@ class GenerateDatabase:
         h = random.choice(range(y, 90))
 
         # ------ making sure the up/down limits or the right/left limits are not too close
-        if w - x < 10 or h - y < 1:
+        if w - x < 10 or h - y < 10:
             return self.generate_random_rectangle_figures(image, draw, random_color, index)
         else:
             # -------- drawing and saving the image ---------
