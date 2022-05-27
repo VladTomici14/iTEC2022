@@ -37,7 +37,7 @@ class GenerateDatabase:
         random_color = random.choice(self.colours)
 
         # TODO: add rotations of the rectangles
-        # TODO: add noise to the backgrounds
+        # TODO: add noise to some pictures
 
         image = Image.new("RGB", (96, 96), "black")
         draw = ImageDraw.Draw(image)
