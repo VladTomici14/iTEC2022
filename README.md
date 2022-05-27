@@ -2,7 +2,7 @@
 # AI Development - Avansati 
 
 ## Project structure
-
+![Project structure iTEC 2022](documentation/project-structure-iTEC2022.png)
 
 ## Generating the database
 
