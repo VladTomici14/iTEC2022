@@ -12,13 +12,13 @@ All the data will be stored in the ```images``` directory, where they will be so
 
 For each geometric figure, we implemented some restrictions :
 
-#### _Ellipses_
+### _Ellipses_
 - The difference between the random ```width``` and the random ```X``` starting point, should be greater than 10.
 - The difference between the random ```height``` and the random ```Y``` starting point, should be greater than 10.
 
 We are having this restrictions because we do not want to generate ellipses that look like some lines.
 
-#### _Rectangles_
+### _Rectangles_
 - The difference between the random ```width``` and the random ```X``` starting point, should be greater than 10.
 - The difference between the random ```height``` and the random ```Y``` starting point, should be greater than 10.
 
@@ -32,7 +32,7 @@ We used 2 formulas :
 
 With these formulas, the script will always generate figures that look like triangles. 
 
-#### _Triangles_
+### _Triangles_
 - All the points should not be collinear.
 - The distance between the 3rd point and the line which contains the first 2 points, should be greater than 5.
 
