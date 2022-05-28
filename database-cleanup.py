@@ -2,7 +2,7 @@
 import os
 
 
-def main():
+def erase_data():
     try:
         os.remove("images/summarize.txt")
     except Exception:
@@ -28,4 +28,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    erase_data()
