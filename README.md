@@ -42,4 +42,8 @@ Again, we're doing this cause we do not want to generate some figures that look 
 ## Cleaning up the data
 When we want to delete all the images from the database, we can easily run the ```database-cleanup.py``` file. This script will erase all the images, but not the directories.
 
-By CodeGroupTM
+## Credits
+
+A project made by Vlad Tomici, 10th grade student from "Grigore Moisil" Theoretical Highschool, Timisoara.
+
+CodeGroupTM team 
