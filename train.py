@@ -1,107 +1,171 @@
-from tensorflow.keras.layers import BatchNormalization, Dense, Reshape, MaxPooling2D, Flatten
+from tensorflow.keras.layers import GlobalAveragePooling2D, Flatten, BatchNormalization, Dropout, Dense
+from tensorflow.keras.callbacks import ReduceLROnPlateau, ModelCheckpoint, EarlyStopping
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.models import Sequential
-import tensorflow
 import numpy as np
-import h5py
-import cv2
+import tensorflow
+import os
 
-n_imgs = 100
 
-classes = {0: "-",
-           1: "rectangleR",
-           2: "rectangleG",
-           3: "rectangleB",
-           4: "ellipseR",
-           5: "ellipseG",
-           6: "ellipseB",
-           7: "triangleR",
-           8: "triangleG",
-           9: "triangleB"}
+# TODO: test the speed in colab
+# TODO: implement some graphs for callbacks
 
-# --------- loading the data set -------
-# dataset_name = "images_10k_10000bb.h5"
-# xy_h5py = h5py.File(f"images/{dataset_name}", "r")
-#
-# x = np.array(xy_h5py["x_train"])
-# y = np.array(xy_h5py["y_train"])
-# images_mean = np.array(xy_h5py["imgs_mean"])
-# images_std = np.array(xy_h5py["imgs_std"])
+class Trainer:
+    def __init__(self):
+        self.classes = ["rectangles", "ellipses", "triangles"]
+        # classes = {1: "rectangleR",
+        #            2: "rectangleG",
+        #            3: "rectangleB",
+        #            4: "ellipseR",
+        #            5: "ellipseG",
+        #            6: "ellipseB",
+        #            7: "triangleR",
+        #            8: "triangleG",
+        #            9: "triangleB"}
 
-# del x, y
-#
-# xy_h5py.close()
+    def train_model(self):
+        """
+        The main function that will do the training.
 
-# ------ declaring some fine tuning parameters for the model --------
-# n_examples = x.shape[0]
-# side_dim = x.shape[1]
-# n_bb = y.shape[1] // 5
-n_classes = 10
-img_size = (96, 96, 3)
-base_model_name = "DenseNet201"
+        :return:
+            @:param model: The trained model.
+            @:param xtest:
+            @:param ytest:
+        """
 
-# --------- declaring the model, based on DenseNet -------
-base_model = tensorflow.keras.applications.DenseNet121(input_shape=img_size,
-                                                       include_top=False)
+        # ---------------- callbacks ---------
+        lr_reduce = ReduceLROnPlateau(monitor="val_loss", patience=20, verbose=1, factor=0.50, min_lr=1e-10)
+        model_checkpoint = ModelCheckpoint("model.h5")
+        early_stopping = EarlyStopping(verbose=1, patience=20)
+        CALLBACKS = [lr_reduce, model_checkpoint, early_stopping]
 
-for layer in base_model.layers:
-    layer.trainable = False
+        # -------------- metrics -----------
+        METRICS = [
+            tensorflow.keras.metrics.BinaryAccuracy(name="accuracy"),
+            tensorflow.keras.metrics.Precision(name="precision"),
+            tensorflow.keras.metrics.Recall(name="recall"),
+            tensorflow.keras.metrics.AUC(name="auc")]
 
-# ------- adding more layers ------
+        # ---------- declaring the variables ------
+        n_classes = len(self.classes)
+        image_size = (96, 96, 3)
 
-base_model_input = base_model.output
-model = Sequential()
-model.add(base_model)
+        # ---------- declaring the DenseNet model ---------
+        base_model = tensorflow.keras.applications.DenseNet121(input_shape=image_size,
+                                                               include_top=False,
+                                                               weights="imagenet")
 
-# flatten = Flatten()(base_model)
-# model.add(flatten)
-model.add(Flatten())
+        # -------- adding layers to the model -------
+        x = base_model.output
+        x = GlobalAveragePooling2D()(x)
+        x = Flatten()(x)
+        x = BatchNormalization()(x)
+        x = Dropout(0.5)(x)
+        x = Dense(1024, activation="relu")(x)
+        x = Dense(512, activation="relu")(x)
+        x = BatchNormalization()(x)
+        x = Dropout(0.5)(x)
+        preds = Dense(n_classes, activation="softmax")(x)
 
-# batch_normalization = BatchNormalization()(flatten)
-# model.add(batch_normalization)
-model.add(BatchNormalization())
+        model = tensorflow.keras.models.Model(inputs=base_model.inputs,
+                                              outputs=preds)
+        print("Created the model !")
 
-# class_categorical = Dense(10, activation="softmax")(batch_normalization)
-# model.add(class_categorical)
-model.add(Dense(10, activation="softmax"))
+        # -------- modifying layers of the model --------
+        for layer in base_model.layers[:-8]:
+            layer.trainable = False
 
-# class_output = Reshape((n_bb, n_classes), name="class_output")(class_categorical)
-#
-# score_confidence = Dense((n_bb), name="score_confidence", activation="tanh")(batch_normalization)
-# score_coords = Dense((n_bb * 4), name="score_coords")(batch_normalization)
+        for layer in base_model.layers[-8:]:
+            layer.trainable = True
 
-model.summary()
+        # ------ plotting the model into an image -------
+        tensorflow.keras.utils.plot_model(model, "model_layers.png", True)
+        print("Saved the models's layers !")
 
-tensorflow.keras.utils.plot_model(model, "model_layers.png", True)
+        # -------- compiling the model -------
+        model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=METRICS)
+        print("Compiled the model !")
 
-# --------------- data set augmentation ---------
-# TODO: delete/edit for fine tuning
-train_data_generator = ImageDataGenerator(rotation_range=5,
-                                          validation_split=0.2,
-                                          width_shift_range=0.2,
-                                          height_shift_range=0.2,
-                                          vertical_flip=True,
-                                          horizontal_flip=True,
-                                          fill_mode="nearest")
+        # model.summary()
 
-valid_data_generator = ImageDataGenerator(rescale=1. / 255,
-                                          validation_split=0.2)
+        # ---------- data augmentation ---------
+        training_set_path = "images/train"
+        validation_set_path = "images/test"
 
-# ---------- loading data set ----------
-training_set_path = "images/train"
-training_set = train_data_generator.flow_from_directory(training_set_path,
-                                                        target_size=(96, 96),
-                                                        batch_size=64,
-                                                        class_mode="categorical",
-                                                        subset="training")
+        train_data_generator = ImageDataGenerator(rescale=1. / 255,
+                                                  zoom_range=0.2,
+                                                  rotation_range=5,
+                                                  horizontal_flip=True)
+        validation_data_generator = ImageDataGenerator(rescale=1. / 255)
 
-# -------- metrics for the compilation --------
-METRICS = [
-    tensorflow.keras.metrics.BinaryAccuracy(name="accuracy"),
-    tensorflow.keras.metrics.Precision(name="precision"),
-    tensorflow.keras.metrics.Recall(name="recall"),
-    tensorflow.keras.metrics.AUC(name="auc")
-]
+        training_set = train_data_generator.flow_from_directory(training_set_path,
+                                                                target_size=(96, 96),
+                                                                batch_size=16,
+                                                                # TODO: find what represents the batch size and fine tune it
+                                                                class_mode="categorical")
+        validation_set = validation_data_generator.flow_from_directory(validation_set_path,
+                                                                       target_size=(96, 96),
+                                                                       batch_size=16,
+                                                                       class_mode="categorical")
 
-# -------------- model compiling ---------
-# model.compile()
+        print("Loaded the data sets !")
+
+        (xtrain, ytrain) = training_set.next()
+        (xtest, ytest) = validation_set.next()
+
+        # -------- fitting the model ----------
+        history = model.fit(training_set,
+                            validation_data=validation_set,
+                            steps_per_epoch=50,
+                            epochs=5,
+                            verbose=2,
+                            callbacks=CALLBACKS)
+
+        print("Fitted the model ! \n")
+        print("\nThe training is done !")
+
+        return model, xtest, ytest
+
+    def benchmark_accuracy(self, model, xtest, ytest):
+        """
+        This functions calculates the accuracy of the training.
+
+            :param model: the model. (could you believe that ? me neither..)
+            :param xtest:
+            :param ytest:
+
+        :return: prints the accuracy alongside with some results
+        """
+
+        ypred = model.predict(xtest)
+
+        total = 0
+        accurate = 0
+        accurate_index = []
+        wrong_index = []
+
+        for i in range(len(ypred)):
+            if np.argmax(ypred[i]) == np.argmax(ytest[i]):
+                accurate += 1
+                accurate_index.append(i)
+            else:
+                wrong_index.append(i)
+
+            total += 1
+
+        print(f"Total test data: {total}")
+        print(f"Accurately predicted data: {accurate}")
+        print(f"Wrongly predicted data: {total - accurate}")
+        print(f"Accuracy: {round(accurate / total * 100, 3)}%")
+
+
+if __name__ == "__main__":
+    # ---- disabling TF wanings, cause i don't have a gpu and they're annoying ;-; ----
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+    trainer = Trainer()
+
+    model, xtest, ytest = trainer.train_model()
+    print("Trained the model !")
+
+    print("Results of the benchmark: ")
+    trainer.benchmark_accuracy(model, xtest, ytest)
