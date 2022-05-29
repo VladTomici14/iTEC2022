@@ -10,9 +10,8 @@ def erase_data():
 
     try:
         list_of_files = os.listdir("images/test/")
-        for folder in list_of_files:
-            for file in os.listdir(f"images/test/{folder}"):
-                os.remove(f"images/test/{folder}/{file}")
+        for file in list_of_files:
+            os.remove(f"images/test/{file}")
 
         list_of_files = os.listdir("images/train/")
         for folder in list_of_files:
