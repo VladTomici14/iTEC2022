@@ -1,6 +1,9 @@
 import numpy as np
+import xlsxwriter
 import random
+import pandas
 import math
+
 
 class Math10thGrade:
     def __init__(self):
@@ -23,30 +26,10 @@ class Math10thGrade:
 
         return int(math.pi * (width // 2) * (height // 2))
 
+
 class GeometricFigures:
     def __init__(self):
         self.math10th = Math10thGrade()
-
-    def generate_random_ellipse_figures(self, image, draw, random_color, index, box=False):
-        # -------- generating random points for the ellipse ---------
-        x = random.choice(range(5, 70))
-        y = random.choice(range(5, 70))
-        w = random.choice(range(x, 90))
-        h = random.choice(range(y, 90))
-
-        # ------ making sure the up/down limits or the right/left limits are not too close
-        if w - x < 10 or h - y < 10 or self.math10th.calculate_ellipse_area(x, y, w, h) < 30:
-            return self.generate_random_ellipse_figures(image, draw, random_color, index, box)
-        else:
-            # -------- drawing and saving the image ---------
-            draw.ellipse((x, y, w, h), fill=random_color)
-
-            if box:
-                image.save(f"images/test/ellipses/{index}-ellipse-{random_color}.png")
-            else:
-                image.save(f"images/train/ellipses/{index}-ellipse-{random_color}.png")
-
-            return image
 
     def generate_random_rectangle_figures(self, image, draw, random_color, index, box=False):
         # -------- generating random points for the rectangle ---------
@@ -56,18 +39,51 @@ class GeometricFigures:
         h = random.choice(range(y, 90))
 
         # ------ making sure the up/down limits or the right/left limits are not too close
-        if w - x < 10 or h - y < 10 or (w - x) * (h - y) < 30:
+        if w - x < 10 or h - y < 10 or (w - x) * (h - y) < 10:
             return self.generate_random_rectangle_figures(image, draw, random_color, index, box)
         else:
             # -------- drawing and saving the image ---------
             draw.rectangle((x, y, w, h), fill=random_color)
 
             if box:
-                image.save(f"images/test/rectangles/{index}-rectangle-{random_color}.png")
+                path_location = "test/"
             else:
-                image.save(f"images/train/rectangles/{index}-rectangle-{random_color}.png")
+                path_location = "train/"
 
-            return image
+            if random_color == (255, 0, 0):
+                image.save(f"images/{path_location}rectangle-red/{str(index)}.png")
+            if random_color == (0, 255, 0):
+                image.save(f"images/{path_location}rectangle-green/{str(index)}.png")
+            if random_color == (0, 0, 255):
+                image.save(f"images/{path_location}rectangle-blue/{str(index)}.png")
+
+    def generate_random_ellipse_figures(self, image, draw, random_color, index, box=False):
+        # -------- generating random points for the ellipse ---------
+        x = random.choice(range(5, 70))
+        y = random.choice(range(5, 70))
+        w = random.choice(range(x, 90))
+        h = random.choice(range(y, 90))
+
+        # ------ making sure the up/down limits or the right/left limits are not too close
+        if w - x < 5 or h - y < 5:
+            return self.generate_random_ellipse_figures(image, draw, random_color, index, box)
+        else:
+            print("mumata")
+            # -------- drawing and saving the image ---------
+            draw.ellipse((x, y, w, h), fill=random_color)
+
+            if box:
+                path_location = "test/"
+            else:
+                path_location = "train/"
+
+            if random_color == (255, 0, 0):
+                image.save(f"images/{path_location}ellipsered/{str(index)}.png")
+            if random_color == (0, 255, 0):
+                image.save(f"images/{path_location}ellipsegreen/{str(index)}.png")
+            if random_color == (0, 0, 255):
+                image.save(f"images/{path_location}ellipseblue/{str(index)}.png")
+
 
     def generate_random_triangle_figures(self, image, draw, random_color, index, box=False):
         # why did i build this ? maybe that s your question.
@@ -100,9 +116,15 @@ class GeometricFigures:
 
             # -------- drawing and saving the image ---------
             draw.polygon(dots, fill=random_color)
-            if box:
-                image.save(f"images/test/triangles/{index}-triangle-{random_color}.png")
-            else:
-                image.save(f"images/train/triangles/{index}-triangle-{random_color}.png")
 
-            return image
+            if box:
+                path_location = "test/"
+            else:
+                path_location = "train/"
+
+            if random_color == (255, 0, 0):
+                image.save(f"images/{path_location}triangle-red/{str(index)}.png")
+            if random_color == (0, 255, 0):
+                image.save(f"images/{path_location}triangle-green/{str(index)}.png")
+            if random_color == (0, 0, 255):
+                image.save(f"images/{path_location}triangle-blue/{str(index)}.png")

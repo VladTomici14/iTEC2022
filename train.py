@@ -1,8 +1,11 @@
+from sklearn.model_selection import train_test_split
 from tensorflow.keras.layers import GlobalAveragePooling2D, Flatten, BatchNormalization, Dropout, Dense
 from tensorflow.keras.callbacks import ReduceLROnPlateau, ModelCheckpoint, EarlyStopping
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import numpy as np
 import tensorflow
+import xlrd
+import csv
 import os
 
 
@@ -11,16 +14,15 @@ import os
 
 class Trainer:
     def __init__(self):
-        self.classes = ["rectangles", "ellipses", "triangles"]
-        # classes = {1: "rectangleR",
-        #            2: "rectangleG",
-        #            3: "rectangleB",
-        #            4: "ellipseR",
-        #            5: "ellipseG",
-        #            6: "ellipseB",
-        #            7: "triangleR",
-        #            8: "triangleG",
-        #            9: "triangleB"}
+        self.classes = ["rectangleR",
+                        "rectangleG",
+                        "rectangleB",
+                        "ellipseR",
+                        "ellipseG",
+                        "ellipseB",
+                        "triangleR",
+                        "triangleG",
+                        "triangleB"]
 
     def train_model(self):
         """
@@ -107,10 +109,12 @@ class Trainer:
                                                                        batch_size=16,
                                                                        class_mode="categorical")
 
-        print("Loaded the data sets !")
-
         (xtrain, ytrain) = training_set.next()
         (xtest, ytest) = validation_set.next()
+
+        print("Loaded the data sets !")
+
+
 
         # -------- fitting the model ----------
         history = model.fit(training_set,

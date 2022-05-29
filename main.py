@@ -4,56 +4,94 @@ from tensorflow.keras.models import load_model
 from generate_database import GenerateDatabase
 import matplotlib.pyplot as plt
 from train import Trainer
-from PIL import Image
+from PIL import Image, ImageFilter
 import numpy as np
 import tensorflow
 import argparse
 import cv2
 
 # ----------- argparsing arguments --------
-# ap = argparse.ArgumentParser()
-# ap.add_argument("-i", "--image", required=True, help="Path of the image.")
-# ap.add_argument("-g", "--generation", required=True, default=False,
-#                 help="Do you want to randomly generate the datasets for training ?")
-# args = vars(ap.parse_args())
+ap = argparse.ArgumentParser()
+ap.add_argument("-i", "--image", required=True, help="Path of the image.")
+args = vars(ap.parse_args())
 
-classes = ["ellipses", "rectangles", "triangles"]
+classes = ["ellipseR",
+           "ellipseG",
+           "ellipseB",
+           "rectangleR",
+           "rectangleG",
+           "rectangleB",
+           "triangleR",
+           "triangleG",
+           "triangleB"]
 
 
 def detect(model, image_path):
+    # ----- preparing the image -----
     image = cv2.imread(image_path)
+    image = cv2.GaussianBlur(image, (5, 5), 0)
+
+    # -------- transforming the image into an array -------
     arrayImage = image.astype("float") / 255.0
     arrayImage = img_to_array(arrayImage)
     arrayImage = np.expand_dims(arrayImage, axis=0)
-    print(f"arrayImage shape: {arrayImage.shape}")
-    prediction = model.predict(arrayImage)[0]
 
-    print(prediction)
+    # ----- making the predictions -------
+    predictions = model.predict(arrayImage)[0]
 
-    return classes[prediction.argmax()]
+    # -------- printing the results ----------
+    print(f"\n< ------ RESULTS: {image_path} ------ >")
+    k = 0
+    for prediction in predictions:
+        prediction_percentage = float(prediction * 100000) / 1000
+        print(f"{classes[k]}: {prediction_percentage}% \n")
+        k += 1
 
-    # validation_generator = ImageDataGenerator(rescale=1./255).flow_from_directory("images/test",
-    #                                                                               (96, 96),
-    #                                                                               16,
-    #                                                                               class_mode="categorical")
-    #
-    # image_batch, classes_batch = next(validation_generator)
-    # predicted_batch = model.predict(image_batch)
-    # for k in range(0, image_batch.shape[0]):
-    #     image = image_batch[k]
-    #     pred = predicted_batch[k]
-    #     the_pred = np.argmax(pred)
-    #     predicted = classes[the_pred]
-    #     val_pred = max(pred)
-    #     the_class = np.argmax(classes_batch[k])
-    #     value = classes[np.argmax(classes_batch[k])]
-    #     plt.figure(k)
-    #     isTrue = (the_pred == the_class)
-    #     plt.title(str(isTrue) + ' - class: ' + value + ' - ' + 'predicted: ' + predicted + '[' + str(val_pred) + ']')
-    #     plt.imshow(image)
+    result = classes[np.argmax(predictions)]
 
-def detect_color(image):
-    pass
+    # this could have been better implemented instead of 6 ifs :)
+    if result.find("rectangle"):
+        shape = "rectangle"
+    elif result.find("ellipse"):
+        shape = "ellipse"
+    elif result.find("triangle"):
+        shape = "triangle"
+
+    if result[len(result) - 1] == "R":
+        color = "red"
+    elif result[len(result) - 1] == "G":
+        color = "green"
+    elif result[len(result) - 1] == "B":
+        color = "blue"
+
+    return color, shape
+
+
+def calculate_area(image, color, shape):
+    # ------- the HSV values for each color -------
+    boundaries = [([0, 100, 100], [20, 100, 100]),
+                  ([100, 100, 100], [120, 100, 100]),
+                  ([220, 100, 100], [240, 100, 100])]
+
+    color_values = []
+
+    for (lower, upper) in boundaries:
+        lower = np.array(lower, dtype="uint8")
+        upper = np.array(upper, dtype="uint8")
+
+        mask = cv2.inRange(image, lower, upper)
+        output = cv2.bitwise_and(image, image, mask=mask)
+
+        color_values.append(np.sum(mask == 255))
+
+    print(color_values)
+
+    if color == "red":
+        return float(100 * color_values[0] / (96 * 96))
+    if color == "green":
+        return float(100 * color_values[1] / (96 * 96))
+    if color == "blue":
+        return float(100 * color_values[2] / (96 * 96))
 
 def main():
     tensorflow.get_logger().setLevel('INFO')
@@ -64,26 +102,15 @@ def main():
     # ----- train the NN -----
     trainer = Trainer()
     # model, xtest, ytest = trainer.train_model()
-    # trainer.benchmark_accuracy(model, xtest, ytest)
-    #
-    # ----- delete the data sets -----
 
+    # or we can load the model
     model = load_model("model.h5")
 
-    # ----- use the parsed image to obtain results -----
-    # images = ["763-ellipse-green.png", "2100-triangle-green.png", "4301-rectangle-red.png", "4399-rectangle-blue.png"]
-    # index = 0
-    # for image_path in images:
-    #     image = cv2.imread(f"{image_path}")
-    #     # cv2.putText(image, str(detect(model, f"images/test/{image_path}")), (5, 5), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 2)
-    #     index += 1
-    #     detection = str(detect(model, f"{image_path}"))
-    #     cv2.imshow(f"{detection}{index}", image)
+    color, shape = detect(model, args["image"])
+    image = cv2.imread(args["image"])
+    area = calculate_area(image, color, shape)
 
-    # cv2.waitKey(0)
-
-    print(detect(model, "21-rectangle-green.png"))
-
+    print(f"Area: {area}")
 
 if __name__ == "__main__":
     main()
