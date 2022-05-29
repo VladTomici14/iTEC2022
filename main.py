@@ -114,6 +114,7 @@ def plotting_results(image_array, noise_array, model):
         plt.figimage(image)
         plt.title(f"{shape} {color}")
 
+    plt.show()
 
 def main():
     tensorflow.get_logger().setLevel('INFO')
@@ -123,17 +124,17 @@ def main():
 
     # ----- train the NN -----
     trainer = Trainer()
-    # model, xtest, ytest = trainer.train_model()
+    model, xtest, ytest = trainer.train_model()
 
     # or we can load the model
-    model = load_model("model.h5")
+    # model = load_model("model.h5") # cause we used a callback
 
     color, shape = detect(model, args["image"])
     image = cv2.imread(args["image"])
     area = calculate_area(image, color, shape)
 
     image_array = ["pictures/0.png", "pictures/noise_1.png", "pictures/noise_3.png", "pictures/noise_4.png", "pictures/9.png", "pictures/noise_7.png"]
-    noise_array = ["pictures/noise_1.png", "pictures/noise_2.png", "pictures/noise_3.png", "pictures/noise_4.png", "pictures/noise_5.png" "pictures/noise_7.png"]
+    noise_array = ["pictures/noise_1.png", "pictures/noise_2.png", "pictures/noise_3.png", "pictures/noise_4.png", "pictures/noise_5.png", "pictures/noise_7.png"]
     plotting_results(image_array, noise_array, model)
 
     print(f"Area: {area}")
