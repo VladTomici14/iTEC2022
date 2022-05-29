@@ -2,7 +2,7 @@ from PIL import Image, ImageDraw
 from utils import Math10thGrade, generate_random_triangle_figures, generate_random_ellipse_figures, generate_random_rectangle_figures
 import random
 import time
-
+import os
 
 class GenerateDatabase:
     def __init__(self):
@@ -87,13 +87,29 @@ class GenerateDatabase:
         for i in range(n_images):
             image, shape, color = self.generate_random_figure(i, True)
 
+    def generate_folders(self):
+        try:
+            os.mkdir("images/train/ellipse-red")
+            os.mkdir("images/train/ellipse-green")
+            os.mkdir("images/train/ellipse-blue")
+            os.mkdir("images/train/triangle-red")
+            os.mkdir("images/train/triangle-green")
+            os.mkdir("images/train/triangle-blue")
+            os.mkdir("images/train/rectangle-red")
+            os.mkdir("images/train/rectangle-green")
+            os.mkdir("images/train/rectangle-blue")
+        except Exception:
+            print("folders already present!")
 
 if __name__ == "__main__":
     generate_database = GenerateDatabase()
 
     initialTime = time.time()
 
+    generate_database.generate_folders()
+
     generate_database.new_dataset(10000)
+
 
     print("Generated the data set !")
 

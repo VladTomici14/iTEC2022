@@ -18,6 +18,9 @@ def erase_data():
             for file in os.listdir(f"images/train/{folder}"):
                 os.remove(f"images/train/{folder}/{file}")
 
+        for folder in list_of_files:
+            os.remove(f"images/train/{folder}")
+
     except Exception:
         print("There are no files !")
 
