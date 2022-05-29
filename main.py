@@ -93,6 +93,28 @@ def calculate_area(image, color, shape):
     if color == "blue":
         return float(100 * color_values[2] / (96 * 96))
 
+def plotting_results(image_array, noise_array, model):
+    rows, cols = 2, 6
+
+    k = 0
+    for image_path in image_array:
+        image = Image.open(image_path)
+        k += 1
+        color, shape = detect(model, image_path)
+        plt.subplot(rows, cols, k)
+        plt.figimage(image)
+        plt.title(f"{shape} {color}")
+
+    k = 0
+    for noise_path in noise_array:
+        image = Image.open(noise_path)
+        k += 1
+        color, shape = detect(model, noise_path)
+        plt.subplot(rows, cols, k)
+        plt.figimage(image)
+        plt.title(f"{shape} {color}")
+
+
 def main():
     tensorflow.get_logger().setLevel('INFO')
 
@@ -101,7 +123,7 @@ def main():
 
     # ----- train the NN -----
     trainer = Trainer()
-    # model, xtest, ytest = trainer.train_model()
+    model, xtest, ytest = trainer.train_model()
 
     # or we can load the model
     model = load_model("model.h5")
@@ -109,6 +131,10 @@ def main():
     color, shape = detect(model, args["image"])
     image = cv2.imread(args["image"])
     area = calculate_area(image, color, shape)
+
+    image_array = ["pictures/0.png", "pictures/noise_1.png", "pictures/noise_3.png", "pictures/noise_4.png", "pictures/9.png", "pictures/noise_7.png"]
+    noise_array = ["pictures/noise_1.png", "pictures/noise_2.png", "pictures/noise_3.png", "pictures/noise_4.png", "pictures/noise_5.png" "pictures/noise_7.png"]
+    plotting_results(image_array, noise_array, model)
 
     print(f"Area: {area}")
 

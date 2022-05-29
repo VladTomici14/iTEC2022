@@ -1,5 +1,5 @@
 from PIL import Image, ImageDraw
-from utils import Math10thGrade, GeometricFigures
+from utils import Math10thGrade, generate_random_triangle_figures, generate_random_ellipse_figures, generate_random_rectangle_figures
 import random
 import time
 
@@ -19,7 +19,6 @@ class GenerateDatabase:
         self.G = (0, 255, 0)
         self.B = (0, 0, 255)
         self.math10th = Math10thGrade()
-        self.geometricFigures = GeometricFigures()
 
     # -------- shape, colour, name, file size -----------
     def generate_meta_data(self, final_time, n_train):
@@ -37,50 +36,49 @@ class GenerateDatabase:
 
     # ------- generating random images ---------
     def generate_random_figure(self, index, bound=False):
-        x = random.randint(0, 9)
-        random_figure = self.classes[x-1]
+        random_figure = random.choice(self.classes)
 
         image = Image.new("RGB", (96, 96), "black")
         draw = ImageDraw.Draw(image)
 
         if random_figure.find("triangle"):
             if random_figure[len(random_figure) - 1] == "R":
-                self.geometricFigures.generate_random_triangle_figures(image, draw, self.R, index, bound)
+                generate_random_triangle_figures(image, draw, self.R, index, bound)
                 return index, "triangle", "R"
 
             if random_figure[len(random_figure) - 1] == "G":
-                self.geometricFigures.generate_random_triangle_figures(image, draw, self.G, index, bound)
+                generate_random_triangle_figures(image, draw, self.G, index, bound)
                 return index, "triangle", "G"
 
             if random_figure[len(random_figure) - 1] == "B":
-                self.geometricFigures.generate_random_triangle_figures(image, draw, self.B, index, bound)
+                generate_random_triangle_figures(image, draw, self.B, index, bound)
                 return index, "triangle", "B"
 
         elif random_figure.find("rectangle"):
             if random_figure[len(random_figure) - 1] == "R":
-                self.geometricFigures.generate_random_rectangle_figures(image, draw, self.R, index, bound)
+                generate_random_rectangle_figures(image, draw, self.R, index, bound)
                 return index, "rectangle", "R"
 
             if random_figure[len(random_figure) - 1] == "G":
-                self.geometricFigures.generate_random_rectangle_figures(image, draw, self.G, index, bound)
+                generate_random_rectangle_figures(image, draw, self.G, index, bound)
                 return index, "rectangle", "G"
 
             if random_figure[len(random_figure) - 1] == "B":
-                self.geometricFigures.generate_random_rectangle_figures(image, draw, self.B, index, bound)
+                generate_random_rectangle_figures(image, draw, self.B, index, bound)
                 return index, "rectangle", "B"
 
-        elif random_figure.find("ellipse"):
-            if random_figure[len(random_figure) - 1] == "R":
-                self.geometricFigures.generate_random_ellipse_figures(image, draw, self.R, index, bound)
-                return index, "ellipse", "R"
+        if random_figure == "ellipseR":
+            generate_random_ellipse_figures(image, draw, self.R, index, bound)
+            return index, "ellipse", "R"
 
-            if random_figure[len(random_figure) - 1] == "G":
-                self.geometricFigures.generate_random_ellipse_figures(image, draw, self.G, index, bound)
-                return index, "ellipse", "G"
+        if random_figure == "ellipseG":
+            generate_random_ellipse_figures(image, draw, self.G, index, bound)
+            return index, "ellipse", "G"
 
-            if random_figure[len(random_figure) - 1] == "B":
-                self.geometricFigures.generate_random_ellipse_figures(image, draw, self.B, index, bound)
-                return index, "ellipse", "B"
+        if random_figure == "ellipseB":
+            print("shit")
+            generate_random_ellipse_figures(image, draw, self.B, index, bound)
+            return index, "ellipse", "B"
 
     def new_dataset(self, n_images):
         for i in range(n_images):
