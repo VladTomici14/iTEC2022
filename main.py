@@ -123,7 +123,7 @@ def main():
 
     # ----- train the NN -----
     trainer = Trainer()
-    model, xtest, ytest = trainer.train_model()
+    # model, xtest, ytest = trainer.train_model()
 
     # or we can load the model
     model = load_model("model.h5")
