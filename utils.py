@@ -44,16 +44,19 @@ def generate_random_rectangle_figures(image, draw, random_color, index, box=Fals
         draw.rectangle((x, y, w, h), fill=random_color)
 
         if box:
-            path_location = "test/"
+            if random_color == (255, 0, 0):
+                image.save(f"images/test/{str(index)}.png")
+            if random_color == (0, 255, 0):
+                image.save(f"images/test/{str(index)}.png")
+            if random_color == (0, 0, 255):
+                image.save(f"images/test/{str(index)}.png")
         else:
-            path_location = "train/"
-
-        if random_color == (255, 0, 0):
-            image.save(f"images/{path_location}rectangle-red/{str(index)}.png")
-        if random_color == (0, 255, 0):
-            image.save(f"images/{path_location}rectangle-green/{str(index)}.png")
-        if random_color == (0, 0, 255):
-            image.save(f"images/{path_location}rectangle-blue/{str(index)}.png")
+            if random_color == (255, 0, 0):
+                image.save(f"images/train/rectangle-red/{str(index)}.png")
+            if random_color == (0, 255, 0):
+                image.save(f"images/train/rectangle-green/{str(index)}.png")
+            if random_color == (0, 0, 255):
+                image.save(f"images/train/rectangle-blue/{str(index)}.png")
 
 def generate_random_ellipse_figures(image, draw, random_color, index, box=False):
     # -------- generating random points for the ellipse ---------
@@ -70,12 +73,22 @@ def generate_random_ellipse_figures(image, draw, random_color, index, box=False)
     else:
         path_location = "train/"
 
-    if random_color == (255, 0, 0):
-        image.save(f"images/{path_location}ellipse-red/{str(index)}.png")
-    if random_color == (0, 255, 0):
-        image.save(f"images/{path_location}ellipse-green/{str(index)}.png")
-    if random_color == (0, 0, 255):
-        image.save(f"images/{path_location}ellipse-blue/{str(index)}.png")
+    if box:
+        if random_color == (255, 0, 0):
+            image.save(f"images/test/{str(index)}.png")
+        if random_color == (0, 255, 0):
+            image.save(f"images/test/{str(index)}.png")
+        if random_color == (0, 0, 255):
+            image.save(f"images/test/{str(index)}.png")
+    else:
+        if random_color == (255, 0, 0):
+            image.save(f"images/train/ellipse-red/{str(index)}.png")
+        if random_color == (0, 255, 0):
+            image.save(f"images/train/ellipse-green/{str(index)}.png")
+        if random_color == (0, 0, 255):
+            image.save(f"images/train/ellipse-blue/{str(index)}.png")
+
+
 
 def generate_random_triangle_figures(image, draw, random_color, index, box=False):
     # why did i build this ? maybe that s your question.
@@ -110,13 +123,16 @@ def generate_random_triangle_figures(image, draw, random_color, index, box=False
         draw.polygon(dots, fill=random_color)
 
         if box:
-            path_location = "test/"
+            if random_color == (255, 0, 0):
+                image.save(f"images/test/{str(index)}.png")
+            if random_color == (0, 255, 0):
+                image.save(f"images/test/{str(index)}.png")
+            if random_color == (0, 0, 255):
+                image.save(f"images/test/{str(index)}.png")
         else:
-            path_location = "train/"
-
-        if random_color == (255, 0, 0):
-            image.save(f"images/{path_location}triangle-red/{str(index)}.png")
-        if random_color == (0, 255, 0):
-            image.save(f"images/{path_location}triangle-green/{str(index)}.png")
-        if random_color == (0, 0, 255):
-            image.save(f"images/{path_location}triangle-blue/{str(index)}.png")
+            if random_color == (255, 0, 0):
+                image.save(f"images/train/triangle-red/{str(index)}.png")
+            if random_color == (0, 255, 0):
+                image.save(f"images/train/triangle-green/{str(index)}.png")
+            if random_color == (0, 0, 255):
+                image.save(f"images/train/triangle-blue/{str(index)}.png")
