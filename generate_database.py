@@ -6,15 +6,15 @@ import os
 
 class GenerateDatabase:
     def __init__(self):
-        self.classes = ["rectangleR",
-                        "rectangleG",
-                        "rectangleB",
-                        "ellipseR",
+        self.classes = ["ellipseB",
                         "ellipseG",
-                        "ellipseB",
-                        "triangleR",
+                        "ellipseR",
+                        "rectangleB",
+                        "rectangleG",
+                        "rectangleR",
+                        "triangleB",
                         "triangleG",
-                        "triangleB"]
+                        "triangleR"]
         self.R = (255, 0, 0)
         self.G = (0, 255, 0)
         self.B = (0, 0, 255)
