@@ -9,21 +9,23 @@ import numpy as np
 import tensorflow
 import argparse
 import cv2
+import os
 
 # ----------- argparsing arguments --------
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", required=True, help="Path of the image.")
+# ap.add_argument("-t", "--train", required=True, type=bool, default=False, help="Do you want to train the model right now ?")
 args = vars(ap.parse_args())
 
-classes = ["ellipseR",
+classes = ["ellipseB",
            "ellipseG",
-           "ellipseB",
-           "rectangleR",
-           "rectangleG",
+           "ellipseR",
            "rectangleB",
-           "triangleR",
+           "rectangleG",
+           "rectangleR",
+           "triangleB",
            "triangleG",
-           "triangleB"]
+           "triangleR"]
 
 
 def detect(model, image_path):
@@ -64,7 +66,7 @@ def detect(model, image_path):
     elif result[len(result) - 1] == "B":
         color = "blue"
 
-    return color, shape
+    return color, shape, result
 
 
 def calculate_area(image, color, shape):
@@ -93,28 +95,26 @@ def calculate_area(image, color, shape):
     if color == "blue":
         return float(100 * color_values[2] / (96 * 96))
 
-def plotting_results(image_array, noise_array, model):
-    rows, cols = 2, 6
+
+def plotting_results(folder_path, model):
+    fig = plt.figure(figsize=(10, 7))
+
+    rows = 2
+    columns = 6
 
     k = 0
-    for image_path in image_array:
-        image = Image.open(image_path)
-        k += 1
-        color, shape = detect(model, image_path)
-        plt.subplot(rows, cols, k)
-        plt.figimage(image)
-        plt.title(f"{shape} {color}")
+    for file in os.listdir(folder_path):
+        fig.add_subplot(rows, columns, k + 1)
 
-    k = 0
-    for noise_path in noise_array:
-        image = Image.open(noise_path)
+        image = cv2.imread(f"pictures/{file}")
+        plt.imshow(image)
+        plt.axis("off")
+        color, shape, result = detect(model, f"pictures/{file}")
+        plt.title(result)
         k += 1
-        color, shape = detect(model, noise_path)
-        plt.subplot(rows, cols, k)
-        plt.figimage(image)
-        plt.title(f"{shape} {color}")
 
     plt.show()
+
 
 def main():
     tensorflow.get_logger().setLevel('INFO')
@@ -127,17 +127,23 @@ def main():
     model, xtest, ytest = trainer.train_model()
 
     # or we can load the model
-    # model = load_model("model.h5") # cause we used a callback
+    # model = load_model("model.h5")  # cause we used a callback
 
-    color, shape = detect(model, args["image"])
+    color, shape, result = detect(model, args["image"])
     image = cv2.imread(args["image"])
     area = calculate_area(image, color, shape)
 
-    image_array = ["pictures/0.png", "pictures/noise_1.png", "pictures/noise_3.png", "pictures/noise_4.png", "pictures/9.png", "pictures/noise_7.png"]
-    noise_array = ["pictures/noise_1.png", "pictures/noise_2.png", "pictures/noise_3.png", "pictures/noise_4.png", "pictures/noise_5.png", "pictures/noise_7.png"]
-    plotting_results(image_array, noise_array, model)
+    plotting_results("pictures", model)
 
     print(f"Area: {area}")
 
+
 if __name__ == "__main__":
     main()
+
+"""
+
+Pregatire manuale pentru saptamana viitoare.
+1) bilet cu ce manuale sunt, nume, numar etc,
+2) 11:45 gala olimpicilor 
+"""
