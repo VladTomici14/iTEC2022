@@ -41,42 +41,36 @@ class GenerateDatabase:
         image = Image.new("RGB", (96, 96), "black")
         draw = ImageDraw.Draw(image)
 
-        if random_figure.find("triangle"):
-            if random_figure[len(random_figure) - 1] == "R":
-                generate_random_triangle_figures(image, draw, self.R, index, bound)
-                return index, "triangle", "R"
+        # -------------- triangles ---------------------
+        if random_figure == "triangleR":
+            generate_random_triangle_figures(image, draw, self.R, index, bound)
+            return index, "triangle", "R"
+        if random_figure == "triangleG":
+            generate_random_triangle_figures(image, draw, self.G, index, bound)
+            return index, "triangle", "G"
+        if random_figure == "triangleB":
+            generate_random_triangle_figures(image, draw, self.B, index, bound)
+            return index, "triangle", "B"
 
-            if random_figure[len(random_figure) - 1] == "G":
-                generate_random_triangle_figures(image, draw, self.G, index, bound)
-                return index, "triangle", "G"
+        # ------------------ rectangle ---------------
+        if random_figure == "rectangleR":
+            generate_random_rectangle_figures(image, draw, self.R, index, bound)
+            return index, "rectangle", "R"
+        if random_figure == "rectangleG":
+            generate_random_rectangle_figures(image, draw, self.G, index, bound)
+            return index, "rectangle", "G"
+        if random_figure == "rectangleB":
+            generate_random_rectangle_figures(image, draw, self.B, index, bound)
+            return index, "rectangle", "B"
 
-            if random_figure[len(random_figure) - 1] == "B":
-                generate_random_triangle_figures(image, draw, self.B, index, bound)
-                return index, "triangle", "B"
-
-        elif random_figure.find("rectangle"):
-            if random_figure[len(random_figure) - 1] == "R":
-                generate_random_rectangle_figures(image, draw, self.R, index, bound)
-                return index, "rectangle", "R"
-
-            if random_figure[len(random_figure) - 1] == "G":
-                generate_random_rectangle_figures(image, draw, self.G, index, bound)
-                return index, "rectangle", "G"
-
-            if random_figure[len(random_figure) - 1] == "B":
-                generate_random_rectangle_figures(image, draw, self.B, index, bound)
-                return index, "rectangle", "B"
-
+        # ----------------------- ellipse --------------
         if random_figure == "ellipseR":
             generate_random_ellipse_figures(image, draw, self.R, index, bound)
             return index, "ellipse", "R"
-
         if random_figure == "ellipseG":
             generate_random_ellipse_figures(image, draw, self.G, index, bound)
             return index, "ellipse", "G"
-
         if random_figure == "ellipseB":
-            print("shit")
             generate_random_ellipse_figures(image, draw, self.B, index, bound)
             return index, "ellipse", "B"
 
@@ -84,7 +78,7 @@ class GenerateDatabase:
         for i in range(n_images):
             image, shape, color = self.generate_random_figure(i, False)
 
-        for i in range(n_images):
+        for i in range(n_images // 5):
             image, shape, color = self.generate_random_figure(i, True)
 
     def generate_folders(self):
