@@ -65,28 +65,27 @@ def generate_random_ellipse_figures(image, draw, random_color, index, box=False)
     w = random.choice(range(x, 90))
     h = random.choice(range(y, 90))
 
-    # -------- drawing and saving the image ---------
-    draw.ellipse((x, y, w, h), fill=random_color)
-
-    if box:
-        path_location = "test/"
+    # ------ making sure the up/down limits or the right/left limits are not too close
+    if w - x < 10 or h - y < 10 or (w - x) * (h - y) < 10:
+        return generate_random_ellipse_figures(image, draw, random_color, index, box)
     else:
-        path_location = "train/"
+        # -------- drawing and saving the image ---------
+        draw.ellipse((x, y, w, h), fill=random_color)
 
-    if box:
-        if random_color == (255, 0, 0):
-            image.save(f"images/test/{str(index)}.png")
-        if random_color == (0, 255, 0):
-            image.save(f"images/test/{str(index)}.png")
-        if random_color == (0, 0, 255):
-            image.save(f"images/test/{str(index)}.png")
-    else:
-        if random_color == (255, 0, 0):
-            image.save(f"images/train/ellipse-red/{str(index)}.png")
-        if random_color == (0, 255, 0):
-            image.save(f"images/train/ellipse-green/{str(index)}.png")
-        if random_color == (0, 0, 255):
-            image.save(f"images/train/ellipse-blue/{str(index)}.png")
+        if box:
+            if random_color == (255, 0, 0):
+                image.save(f"images/test/{str(index)}.png")
+            if random_color == (0, 255, 0):
+                image.save(f"images/test/{str(index)}.png")
+            if random_color == (0, 0, 255):
+                image.save(f"images/test/{str(index)}.png")
+        else:
+            if random_color == (255, 0, 0):
+                image.save(f"images/train/ellipse-red/{str(index)}.png")
+            if random_color == (0, 255, 0):
+                image.save(f"images/train/ellipse-green/{str(index)}.png")
+            if random_color == (0, 0, 255):
+                image.save(f"images/train/ellipse-blue/{str(index)}.png")
 
 
 
