@@ -90,6 +90,11 @@ Epoch 4/5
 Epoch 5/5
 50/50 - 446s - loss: 0.0812 - accuracy: 0.9944 - precision: 0.9774 - recall: 0.9725 - auc: 0.9990 - val_loss: 0.0065 - val_accuracy: 0.9997 - val_precision: 0.9986 - val_recall: 0.9984 - val_auc: 1.0000
 ```
+
+And the results look something like this : 
+
+![Results](documentation/results.png)
+
 ## Credits
 
 There are probably more details that I would love to talk about with you. So I am open to any form of communication :)
